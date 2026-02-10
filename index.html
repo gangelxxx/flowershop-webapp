@@ -233,13 +233,16 @@
             
             log('Sending: ' + JSON.stringify(data));
             
-            try {
-                tg.sendData(JSON.stringify(data));
-                log('Data sent!');
-            } catch (e) {
-                log('Error: ' + e.message);
-                tg.showAlert('Ошибка: ' + e.message);
-            }
+            log('Sending: ' + JSON.stringify(data).substring(0, 50));
+            
+            // Send data and close
+            tg.sendData(JSON.stringify(data));
+            log('Data sent!');
+            
+            // Force close after delay
+            setTimeout(function() {
+                tg.close();
+            }, 500);
         }
         
         // Validate on input
