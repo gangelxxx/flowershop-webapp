@@ -594,6 +594,11 @@
         }
         
         function confirmDeleteAll() {
+            console.log('confirmDeleteAll called, allProducts:', allProducts.length);
+            if (allProducts.length === 0) {
+                alert('Нет товаров для удаления');
+                return;
+            }
             deleteAction = 'all';
             document.getElementById('modal-title').textContent = 'Удалить ВСЕ товары?';
             document.getElementById('modal-text').textContent = `Все ${allProducts.length} товаров будут удалены безвозвратно. Это действие нельзя отменить!`;
@@ -606,13 +611,22 @@
         }
         
         async function executeDelete() {
+            // Save action BEFORE hideModal (which resets deleteAction to null)
+            const action = deleteAction;
             hideModal();
             
-            const idsToDelete = deleteAction === 'all' 
+            console.log('executeDelete called, action:', action, 'allProducts:', allProducts.length, 'selectedIds:', selectedIds.size);
+            
+            const idsToDelete = action === 'all' 
                 ? allProducts.map(p => p.id) 
                 : Array.from(selectedIds);
             
             console.log('Deleting IDs:', idsToDelete);
+            
+            if (idsToDelete.length === 0) {
+                alert('Нет товаров для удаления');
+                return;
+            }
             document.getElementById('products-list').innerHTML = `<div class="loading">Удаление ${idsToDelete.length} товаров...</div>`;
             
             let deleted = 0;
