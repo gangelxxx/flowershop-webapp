@@ -162,7 +162,9 @@
         // Main button setup
         tg.MainButton.setText('Добавить товар');
         tg.MainButton.show();
-        tg.MainButton.onClick(function() {
+        
+        // Use onEvent instead of onClick (more reliable)
+        tg.onEvent('mainButtonClicked', function() {
             log('Button clicked!');
             submitForm();
         });
