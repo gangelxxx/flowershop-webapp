@@ -331,9 +331,20 @@
                 has_photo: !!photoData
             };
             
-            // Note: Photo will need to be sent separately as sendData has size limits
-            tg.sendData(JSON.stringify(data));
+            try {
+                tg.sendData(JSON.stringify(data));
+            } catch (e) {
+                // Fallback - close and show alert
+                tg.showAlert('Данные отправлены! Закройте окно.');
+                setTimeout(() => tg.close(), 1000);
+            }
         }
+        
+        // Also bind to visible button click
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.querySelector('.submit-btn');
+            if (btn) btn.addEventListener('click', submitForm);
+        });
         
         // Validate on input
         ['name', 'description', 'price'].forEach(id => {
