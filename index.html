@@ -16,6 +16,7 @@
             --accent: #3390ec;
             --green: #34c759;
             --red: #ff3b30;
+            --orange: #ff9500;
         }
         
         body {
@@ -63,6 +64,38 @@
         
         .content { padding: 0 16px; }
         
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: var(--card);
+            border-radius: 12px;
+        }
+        .toolbar-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .toolbar-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+        .toolbar-btn.danger {
+            background: var(--red);
+            color: white;
+        }
+        
         /* Products List */
         .product-card {
             background: var(--card);
@@ -72,6 +105,38 @@
             display: flex;
             gap: 12px;
             align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .product-card.selected {
+            background: rgba(51, 144, 236, 0.2);
+            box-shadow: inset 0 0 0 2px var(--accent);
+        }
+        
+        .product-checkbox {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid var(--hint);
+            border-radius: 6px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .product-checkbox.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .product-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .select-mode .product-checkbox {
+            display: flex;
         }
         
         .product-img {
@@ -82,12 +147,14 @@
             background: var(--bg);
         }
         
-        .product-info { flex: 1; }
-        .product-name { font-weight: 600; margin-bottom: 4px; }
+        .product-info { flex: 1; min-width: 0; }
+        .product-name { font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .product-price { color: var(--green); font-weight: 500; }
         .product-status { font-size: 12px; color: var(--hint); }
         
         .product-actions { display: flex; gap: 8px; }
+        .select-mode .product-actions { display: none; }
+        
         .btn-icon {
             width: 36px;
             height: 36px;
@@ -98,6 +165,81 @@
         }
         .btn-edit { background: var(--accent); color: white; }
         .btn-delete { background: var(--red); color: white; }
+        
+        /* Bulk Actions Bar */
+        .bulk-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            padding: 12px 16px;
+            display: none;
+            gap: 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            z-index: 200;
+        }
+        .bulk-bar.visible { display: flex; }
+        .bulk-bar button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .bulk-bar .btn-cancel { background: var(--hint); color: white; }
+        .bulk-bar .btn-delete-selected { background: var(--orange); color: white; }
+        .bulk-bar .btn-delete-all { background: var(--red); color: white; }
+        .bulk-bar .selected-count {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Confirm Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            padding: 20px;
+        }
+        .modal-overlay.visible { display: flex; }
+        .modal {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-icon { font-size: 48px; margin-bottom: 16px; }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .modal-text { color: var(--hint); font-size: 14px; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .modal-buttons button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .modal .btn-cancel { background: var(--hint); color: white; }
+        .modal .btn-confirm { background: var(--red); color: white; }
         
         /* Form */
         .form-group { margin-bottom: 16px; }
@@ -240,6 +382,14 @@
     
     <!-- Products Tab -->
     <div id="tab-products" class="content">
+        <div class="toolbar">
+            <button class="toolbar-btn" id="btn-select-mode" onclick="toggleSelectMode()">
+                ☑️ <span>Выбрать</span>
+            </button>
+            <button class="toolbar-btn" id="btn-select-all" onclick="selectAll()" style="display:none;">
+                📋 Все
+            </button>
+        </div>
         <div id="products-list"></div>
         <button class="fab" onclick="showForm()">+</button>
     </div>
@@ -289,6 +439,27 @@
         <button class="btn-primary" onclick="saveProduct()">💾 Сохранить</button>
         <button class="btn-primary" style="background: var(--hint); margin-top: 8px;" onclick="hideForm()">Отмена</button>
     </div>
+    
+    <!-- Bulk Actions Bar -->
+    <div class="bulk-bar" id="bulk-bar">
+        <span class="selected-count" id="selected-count">0 выбрано</span>
+        <button class="btn-cancel" onclick="toggleSelectMode()">Отмена</button>
+        <button class="btn-delete-selected" id="btn-delete-selected" onclick="deleteSelected()">🗑 Удалить</button>
+        <button class="btn-delete-all" onclick="confirmDeleteAll()">🗑 Все</button>
+    </div>
+    
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="modal-confirm">
+        <div class="modal">
+            <div class="modal-icon">⚠️</div>
+            <div class="modal-title" id="modal-title">Удалить все товары?</div>
+            <div class="modal-text" id="modal-text">Это действие нельзя отменить. Все товары будут удалены безвозвратно.</div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="hideModal()">Отмена</button>
+                <button class="btn-confirm" id="modal-confirm-btn" onclick="executeDelete()">Удалить</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -309,6 +480,10 @@
         
         let editingId = null;
         let photoData = null;
+        let selectMode = false;
+        let selectedIds = new Set();
+        let allProducts = [];
+        let deleteAction = null; // 'selected' or 'all'
         
         // Load products on start
         loadProducts();
@@ -318,9 +493,9 @@
             
             try {
                 const res = await fetch(API + '/products');
-                const products = await res.json();
+                allProducts = await res.json();
                 
-                if (products.length === 0) {
+                if (allProducts.length === 0) {
                     document.getElementById('products-list').innerHTML = `
                         <div class="empty">
                             <div class="empty-icon">📦</div>
@@ -329,29 +504,132 @@
                     return;
                 }
                 
-                let html = '';
-                for (const p of products) {
-                    const status = p.in_stock ? '✅ В наличии' : '❌ Нет';
-                    const hasImg = p.image_url && p.image_url.length > 10;
-                    html += `
-                        <div class="product-card">
-                            <div class="product-img" style="display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--bg);">
-                                ${hasImg ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='🌸'">` : '🌸'}
-                            </div>
-                            <div class="product-info">
-                                <div class="product-name">${p.name}</div>
-                                <div class="product-price">${p.price} ₽</div>
-                                <div class="product-status">${status}</div>
-                            </div>
-                            <div class="product-actions">
-                                <button class="btn-icon btn-edit" onclick="editProduct(${p.id})">✏️</button>
-                                <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">🗑</button>
-                            </div>
-                        </div>`;
-                }
-                document.getElementById('products-list').innerHTML = html;
+                renderProducts();
             } catch (e) {
                 document.getElementById('products-list').innerHTML = '<div class="loading">Ошибка загрузки</div>';
+            }
+        }
+        
+        function renderProducts() {
+            let html = '';
+            for (const p of allProducts) {
+                const status = p.in_stock ? '✅ В наличии' : '❌ Нет';
+                const hasImg = p.image_url && p.image_url.length > 10;
+                const isSelected = selectedIds.has(p.id);
+                html += `
+                    <div class="product-card ${isSelected ? 'selected' : ''}" data-id="${p.id}" onclick="handleCardClick(${p.id}, event)">
+                        <div class="product-checkbox ${isSelected ? 'checked' : ''}" data-id="${p.id}"></div>
+                        <div class="product-img" style="display:flex;align-items:center;justify-content:center;font-size:30px;background:var(--bg);">
+                            ${hasImg ? `<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.parentElement.innerHTML='🌸'">` : '🌸'}
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">${p.price} ₽</div>
+                            <div class="product-status">${status}</div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-icon btn-edit" onclick="editProduct(${p.id}); event.stopPropagation();">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}'); event.stopPropagation();">🗑</button>
+                        </div>
+                    </div>`;
+            }
+            document.getElementById('products-list').innerHTML = html;
+            updateBulkBar();
+        }
+        
+        function handleCardClick(id, event) {
+            if (!selectMode) return;
+            event.stopPropagation();
+            toggleSelection(id);
+        }
+        
+        function toggleSelection(id) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+            } else {
+                selectedIds.add(id);
+            }
+            renderProducts();
+        }
+        
+        function toggleSelectMode() {
+            selectMode = !selectMode;
+            selectedIds.clear();
+            
+            document.getElementById('products-list').classList.toggle('select-mode', selectMode);
+            document.getElementById('btn-select-mode').classList.toggle('active', selectMode);
+            document.getElementById('btn-select-all').style.display = selectMode ? 'flex' : 'none';
+            document.querySelector('.fab').classList.toggle('hidden', selectMode);
+            
+            renderProducts();
+            updateBulkBar();
+        }
+        
+        function selectAll() {
+            if (selectedIds.size === allProducts.length) {
+                selectedIds.clear();
+            } else {
+                allProducts.forEach(p => selectedIds.add(p.id));
+            }
+            renderProducts();
+        }
+        
+        function updateBulkBar() {
+            const bar = document.getElementById('bulk-bar');
+            const count = document.getElementById('selected-count');
+            const btnDelete = document.getElementById('btn-delete-selected');
+            
+            bar.classList.toggle('visible', selectMode);
+            count.textContent = `${selectedIds.size} выбрано`;
+            btnDelete.disabled = selectedIds.size === 0;
+            btnDelete.style.opacity = selectedIds.size === 0 ? 0.5 : 1;
+        }
+        
+        function deleteSelected() {
+            if (selectedIds.size === 0) return;
+            deleteAction = 'selected';
+            document.getElementById('modal-title').textContent = `Удалить ${selectedIds.size} товар(ов)?`;
+            document.getElementById('modal-text').textContent = 'Выбранные товары будут удалены безвозвратно.';
+            document.getElementById('modal-confirm').classList.add('visible');
+        }
+        
+        function confirmDeleteAll() {
+            deleteAction = 'all';
+            document.getElementById('modal-title').textContent = 'Удалить ВСЕ товары?';
+            document.getElementById('modal-text').textContent = `Все ${allProducts.length} товаров будут удалены безвозвратно. Это действие нельзя отменить!`;
+            document.getElementById('modal-confirm').classList.add('visible');
+        }
+        
+        function hideModal() {
+            document.getElementById('modal-confirm').classList.remove('visible');
+            deleteAction = null;
+        }
+        
+        async function executeDelete() {
+            hideModal();
+            
+            const idsToDelete = deleteAction === 'all' 
+                ? allProducts.map(p => p.id) 
+                : Array.from(selectedIds);
+            
+            document.getElementById('products-list').innerHTML = '<div class="loading">Удаление...</div>';
+            
+            try {
+                for (const id of idsToDelete) {
+                    await fetch(API + '/products/' + id, {
+                        method: 'DELETE',
+                        headers: { 'X-Auth-Token': TOKEN }
+                    });
+                }
+                
+                selectedIds.clear();
+                if (deleteAction === 'all') {
+                    toggleSelectMode();
+                }
+                loadProducts();
+            } catch (e) {
+                alert('Ошибка удаления');
+                loadProducts();
             }
         }
         
@@ -387,6 +665,9 @@
         }
         
         function showTab(tab) {
+            // Exit select mode when switching tabs
+            if (selectMode) toggleSelectMode();
+            
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
             
@@ -399,6 +680,8 @@
         }
         
         function showForm(product = null) {
+            if (selectMode) toggleSelectMode();
+            
             editingId = product ? product.id : null;
             document.getElementById('form-title').textContent = product ? '✏️ Редактирование' : '➕ Новый товар';
             
@@ -420,6 +703,7 @@
             document.getElementById('tab-products').classList.add('hidden');
             document.getElementById('product-form').classList.remove('hidden');
             document.querySelector('.fab').classList.add('hidden');
+            document.getElementById('bulk-bar').classList.remove('visible');
         }
         
         function hideForm() {
