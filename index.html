@@ -612,25 +612,43 @@
                 ? allProducts.map(p => p.id) 
                 : Array.from(selectedIds);
             
-            document.getElementById('products-list').innerHTML = '<div class="loading">Удаление...</div>';
+            console.log('Deleting IDs:', idsToDelete);
+            document.getElementById('products-list').innerHTML = `<div class="loading">Удаление ${idsToDelete.length} товаров...</div>`;
             
-            try {
-                for (const id of idsToDelete) {
-                    await fetch(API + '/products/' + id, {
+            let deleted = 0;
+            let errors = [];
+            
+            for (const id of idsToDelete) {
+                try {
+                    const res = await fetch(API + '/products/' + id, {
                         method: 'DELETE',
                         headers: { 'X-Auth-Token': TOKEN }
                     });
+                    console.log(`Delete ${id}:`, res.status);
+                    if (res.ok) {
+                        deleted++;
+                    } else {
+                        errors.push(`${id}: ${res.status}`);
+                    }
+                } catch (e) {
+                    console.error(`Delete ${id} error:`, e);
+                    errors.push(`${id}: ${e.message}`);
                 }
-                
-                selectedIds.clear();
-                if (deleteAction === 'all') {
-                    toggleSelectMode();
-                }
-                loadProducts();
-            } catch (e) {
-                alert('Ошибка удаления');
-                loadProducts();
             }
+            
+            console.log(`Deleted: ${deleted}, Errors: ${errors.length}`);
+            
+            if (errors.length > 0) {
+                alert(`Удалено: ${deleted}\nОшибки: ${errors.join(', ')}`);
+            }
+            
+            selectedIds.clear();
+            if (selectMode) {
+                toggleSelectMode();
+            }
+            
+            // Force reload
+            setTimeout(() => loadProducts(), 300);
         }
         
         async function loadStats() {
