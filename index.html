@@ -15,35 +15,20 @@
             --tg-theme-secondary-bg-color: #2c2c2e;
         }
         
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--tg-theme-bg-color);
             color: var(--tg-theme-text-color);
             padding: 16px;
+            padding-bottom: 100px;
             min-height: 100vh;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .header h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .header p {
-            color: var(--tg-theme-hint-color);
-            font-size: 14px;
-        }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .header p { color: var(--tg-theme-hint-color); font-size: 14px; }
         
         .photo-upload {
             background: var(--tg-theme-secondary-bg-color);
@@ -52,157 +37,58 @@
             text-align: center;
             margin-bottom: 20px;
             cursor: pointer;
-            transition: all 0.2s;
         }
+        .photo-upload.has-photo { padding: 0; overflow: hidden; }
+        .photo-upload img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 16px; }
+        .photo-icon { font-size: 48px; margin-bottom: 8px; }
+        .photo-text { color: var(--tg-theme-hint-color); font-size: 14px; }
         
-        .photo-upload:hover {
-            opacity: 0.8;
-        }
-        
-        .photo-upload.has-photo {
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        .photo-upload img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: cover;
-            border-radius: 16px;
-        }
-        
-        .photo-icon {
-            font-size: 48px;
-            margin-bottom: 8px;
-        }
-        
-        .photo-text {
-            color: var(--tg-theme-hint-color);
-            font-size: 14px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
+        .form-group { margin-bottom: 16px; }
         .form-label {
-            display: block;
-            font-size: 13px;
-            color: var(--tg-theme-hint-color);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-size: 13px; color: var(--tg-theme-hint-color);
+            margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        
         .form-input {
-            width: 100%;
-            background: var(--tg-theme-secondary-bg-color);
-            border: none;
-            border-radius: 12px;
-            padding: 14px 16px;
-            font-size: 16px;
-            color: var(--tg-theme-text-color);
-            outline: none;
-            transition: all 0.2s;
+            width: 100%; background: var(--tg-theme-secondary-bg-color);
+            border: none; border-radius: 12px; padding: 14px 16px;
+            font-size: 16px; color: var(--tg-theme-text-color); outline: none;
         }
+        .form-input:focus { box-shadow: 0 0 0 2px var(--tg-theme-button-color); }
+        .form-input::placeholder { color: var(--tg-theme-hint-color); }
+        textarea.form-input { min-height: 100px; resize: vertical; }
         
-        .form-input:focus {
-            box-shadow: 0 0 0 2px var(--tg-theme-button-color);
-        }
-        
-        .form-input::placeholder {
-            color: var(--tg-theme-hint-color);
-        }
-        
-        textarea.form-input {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .price-input {
-            position: relative;
-        }
-        
-        .price-input .form-input {
-            padding-right: 40px;
-        }
-        
+        .price-input { position: relative; }
+        .price-input .form-input { padding-right: 40px; }
         .price-input .currency {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--tg-theme-hint-color);
-            font-size: 16px;
+            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--tg-theme-hint-color); font-size: 16px;
         }
         
         .toggle-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             background: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px;
-            padding: 14px 16px;
+            border-radius: 12px; padding: 14px 16px;
         }
-        
-        .toggle-label {
-            font-size: 16px;
-        }
-        
+        .toggle-label { font-size: 16px; }
         .toggle {
-            width: 51px;
-            height: 31px;
-            background: #39393d;
-            border-radius: 16px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 51px; height: 31px; background: #39393d;
+            border-radius: 16px; position: relative; cursor: pointer; transition: all 0.3s;
         }
-        
-        .toggle.active {
-            background: #34c759;
-        }
-        
+        .toggle.active { background: #34c759; }
         .toggle::after {
-            content: '';
-            position: absolute;
-            width: 27px;
-            height: 27px;
-            background: white;
-            border-radius: 50%;
-            top: 2px;
-            left: 2px;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            content: ''; position: absolute; width: 27px; height: 27px;
+            background: white; border-radius: 50%; top: 2px; left: 2px;
+            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        .toggle.active::after { left: 22px; }
         
-        .toggle.active::after {
-            left: 22px;
-        }
+        .hidden { display: none; }
+        #fileInput { display: none; }
         
-        .hidden {
-            display: none;
-        }
-        
-        #fileInput {
-            display: none;
-        }
-        
-        .preview-actions {
-            display: flex;
-            gap: 8px;
-            padding: 12px;
-            justify-content: center;
-        }
-        
-        .preview-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
+        .debug { 
+            position: fixed; bottom: 60px; left: 10px; right: 10px;
+            background: rgba(255,0,0,0.8); color: white; padding: 8px;
+            border-radius: 8px; font-size: 12px; display: none;
         }
     </style>
 </head>
@@ -245,43 +131,41 @@
             <div class="toggle active" id="inStock" onclick="toggleStock()"></div>
         </div>
     </div>
+    
+    <div class="debug" id="debug"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        const debug = document.getElementById('debug');
+        
+        function log(msg) {
+            console.log(msg);
+            debug.style.display = 'block';
+            debug.textContent = msg;
+        }
+        
         tg.expand();
         tg.ready();
         
         // Apply Telegram theme
-        document.body.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1c1c1e');
-        document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
-        document.body.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#8e8e93');
-        document.body.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#3390ec');
-        document.body.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
+        if (tg.themeParams) {
+            document.body.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1c1c1e');
+            document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
+            document.body.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#8e8e93');
+            document.body.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#3390ec');
+            document.body.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
+        }
         
         let photoData = null;
         let inStock = true;
-        let editMode = false;
-        let productId = null;
         
-        // Check if editing existing product
-        const initData = tg.initDataUnsafe;
-        if (initData && initData.start_param) {
-            // Parse product data from start_param
-            try {
-                const params = new URLSearchParams(initData.start_param);
-                if (params.get('edit')) {
-                    editMode = true;
-                    productId = params.get('id');
-                    document.getElementById('title').textContent = '✏️ Редактирование';
-                    document.getElementById('subtitle').textContent = 'Измените информацию о товаре';
-                }
-            } catch (e) {}
-        }
-        
-        // Main button
-        tg.MainButton.setText(editMode ? 'Сохранить' : 'Добавить товар');
+        // Main button setup
+        tg.MainButton.setText('Добавить товар');
         tg.MainButton.show();
-        tg.MainButton.onClick(submitForm);
+        tg.MainButton.onClick(function() {
+            log('Button clicked!');
+            submitForm();
+        });
         
         function toggleStock() {
             inStock = !inStock;
@@ -308,6 +192,8 @@
             const description = document.getElementById('description').value.trim();
             const price = document.getElementById('price').value;
             
+            log('Validating: ' + name + ', ' + description + ', ' + price);
+            
             if (!name) {
                 tg.showAlert('Введите название товара');
                 return;
@@ -322,8 +208,7 @@
             }
             
             const data = {
-                action: editMode ? 'edit' : 'add',
-                product_id: productId,
+                action: 'add',
                 name: name,
                 description: description,
                 price: parseInt(price),
@@ -331,37 +216,31 @@
                 has_photo: !!photoData
             };
             
+            log('Sending: ' + JSON.stringify(data));
+            
             try {
                 tg.sendData(JSON.stringify(data));
+                log('Data sent!');
             } catch (e) {
-                // Fallback - close and show alert
-                tg.showAlert('Данные отправлены! Закройте окно.');
-                setTimeout(() => tg.close(), 1000);
+                log('Error: ' + e.message);
+                tg.showAlert('Ошибка: ' + e.message);
             }
         }
-        
-        // Also bind to visible button click
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.querySelector('.submit-btn');
-            if (btn) btn.addEventListener('click', submitForm);
-        });
         
         // Validate on input
         ['name', 'description', 'price'].forEach(id => {
-            document.getElementById(id).addEventListener('input', validateForm);
+            document.getElementById(id).addEventListener('input', function() {
+                const name = document.getElementById('name').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const price = document.getElementById('price').value;
+                
+                if (name && description && price > 0) {
+                    tg.MainButton.enable();
+                } else {
+                    tg.MainButton.disable();
+                }
+            });
         });
-        
-        function validateForm() {
-            const name = document.getElementById('name').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const price = document.getElementById('price').value;
-            
-            if (name && description && price > 0) {
-                tg.MainButton.enable();
-            } else {
-                tg.MainButton.disable();
-            }
-        }
     </script>
 </body>
 </html>
