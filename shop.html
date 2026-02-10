@@ -412,7 +412,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>💐 Цветочный рай</h1>
+        <h1 id="shop-name">💐 Цветочный рай</h1>
         <p>Свежие букеты с доставкой</p>
     </div>
     
@@ -551,9 +551,33 @@
         let modalQty = 1;
         let deliveryType = 'delivery';
         
-        // Load products
+        // Shop settings
+        let shopSettings = {
+            shop_name: 'Цветочный рай',
+            delivery_price: 300,
+            free_delivery_from: 3000
+        };
+        
+        // Load settings and products
+        loadSettings();
         loadProducts();
         updateCartBadge();
+        
+        async function loadSettings() {
+            try {
+                const res = await fetch(API + '/settings');
+                if (res.ok) {
+                    shopSettings = await res.json();
+                    // Update shop name
+                    if (shopSettings.shop_name) {
+                        document.getElementById('shop-name').textContent = '💐 ' + shopSettings.shop_name;
+                        document.title = shopSettings.shop_name;
+                    }
+                }
+            } catch (e) {
+                console.log('Settings not loaded');
+            }
+        }
         
         async function loadProducts() {
             document.getElementById('products-grid').innerHTML = '<div class="loading" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;z-index:999;"><div class="loading-spinner"></div><div class="loading-text">Загрузка...</div></div>';
@@ -706,7 +730,7 @@
                     </div>`;
             }
             
-            const delivery = 300;
+            const delivery = subtotal >= shopSettings.free_delivery_from ? 0 : shopSettings.delivery_price;
             const total = subtotal + delivery;
             
             html += `
@@ -765,11 +789,14 @@
                 if (p) subtotal += p.price * item.qty;
             }
             
-            const delivery = deliveryType === 'delivery' ? 300 : 0;
+            let delivery = 0;
+            if (deliveryType === 'delivery') {
+                delivery = subtotal >= shopSettings.free_delivery_from ? 0 : shopSettings.delivery_price;
+            }
             const total = subtotal + delivery;
             
             document.getElementById('checkout-subtotal').textContent = subtotal + ' ₽';
-            document.getElementById('checkout-delivery').textContent = delivery + ' ₽';
+            document.getElementById('checkout-delivery').textContent = delivery === 0 && deliveryType === 'delivery' ? 'Бесплатно' : delivery + ' ₽';
             document.getElementById('checkout-total').textContent = total + ' ₽';
         }
         
@@ -799,7 +826,10 @@
                 }
             }
             
-            const delivery = deliveryType === 'delivery' ? 300 : 0;
+            let delivery = 0;
+            if (deliveryType === 'delivery') {
+                delivery = subtotal >= shopSettings.free_delivery_from ? 0 : shopSettings.delivery_price;
+            }
             const total = subtotal + delivery;
             
             const order = {
