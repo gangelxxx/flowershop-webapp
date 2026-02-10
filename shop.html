@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Цветочный рай</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -213,6 +215,82 @@
         }
         .form-input:focus { border-color: var(--accent); }
         
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+        .input-with-btn .form-input { flex: 1; }
+        .btn-map {
+            width: 50px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        /* Map Modal */
+        .map-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        .map-modal.visible { display: flex; }
+        .map-header {
+            padding: 16px;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .map-header h2 { flex: 1; font-size: 18px; }
+        .map-close {
+            width: 36px; height: 36px;
+            border: none;
+            background: var(--hint);
+            color: white;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        #map-container {
+            flex: 1;
+            min-height: 300px;
+        }
+        .map-footer {
+            padding: 16px;
+            background: var(--card);
+        }
+        .map-address {
+            font-size: 14px;
+            color: var(--hint);
+            margin-bottom: 12px;
+            min-height: 40px;
+        }
+        .map-address strong {
+            color: var(--text);
+            display: block;
+            font-size: 16px;
+        }
+        .btn-confirm-map {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-confirm-map:disabled {
+            opacity: 0.5;
+        }
+        
         .delivery-options {
             display: flex;
             gap: 12px;
@@ -306,7 +384,10 @@
         
         <div id="address-field" class="form-group">
             <label class="form-label">Адрес доставки</label>
-            <input type="text" class="form-input" id="f-address" placeholder="ул. Цветочная, д. 1">
+            <div class="input-with-btn">
+                <input type="text" class="form-input" id="f-address" placeholder="ул. Цветочная, д. 1">
+                <button type="button" class="btn-map" onclick="openMap()">📍</button>
+            </div>
         </div>
         
         <div class="form-group">
@@ -360,6 +441,24 @@
             
             <button class="btn btn-primary" onclick="addToCart()">🛒 В корзину</button>
             <button class="btn btn-secondary" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Map Modal -->
+    <div id="map-modal" class="map-modal">
+        <div class="map-header">
+            <button class="map-close" onclick="closeMap()">×</button>
+            <h2>📍 Выберите адрес</h2>
+        </div>
+        <div id="map-container"></div>
+        <div class="map-footer">
+            <div class="map-address" id="map-address">
+                <strong>Нажмите на карту</strong>
+                для выбора адреса доставки
+            </div>
+            <button class="btn-confirm-map" id="btn-confirm-map" onclick="confirmMapAddress()" disabled>
+                ✓ Подтвердить адрес
+            </button>
         </div>
     </div>
 
@@ -657,6 +756,97 @@
             
             tg.showAlert('Заказ оформлен! Мы свяжемся с вами.');
             setTimeout(() => tg.close(), 1500);
+        }
+        
+        // ===== MAP FUNCTIONS =====
+        let map = null;
+        let marker = null;
+        let selectedAddress = '';
+        let selectedCoords = null;
+        
+        function openMap() {
+            document.getElementById('map-modal').classList.add('visible');
+            
+            if (!map) {
+                // Default center: Moscow
+                map = L.map('map-container').setView([55.7558, 37.6173], 12);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+                
+                map.on('click', onMapClick);
+                
+                // Try to get user location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => {
+                            map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+                        },
+                        () => {} // Ignore errors
+                    );
+                }
+            }
+            
+            setTimeout(() => map.invalidateSize(), 100);
+        }
+        
+        function closeMap() {
+            document.getElementById('map-modal').classList.remove('visible');
+        }
+        
+        async function onMapClick(e) {
+            const { lat, lng } = e.latlng;
+            selectedCoords = { lat, lng };
+            
+            // Update or create marker
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng]).addTo(map);
+            }
+            
+            // Show loading
+            document.getElementById('map-address').innerHTML = '<strong>Определяем адрес...</strong>';
+            document.getElementById('btn-confirm-map').disabled = true;
+            
+            // Reverse geocode
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ru`);
+                const data = await res.json();
+                
+                if (data.display_name) {
+                    // Extract street address
+                    const addr = data.address || {};
+                    let parts = [];
+                    if (addr.road) parts.push(addr.road);
+                    if (addr.house_number) parts.push('д. ' + addr.house_number);
+                    if (!parts.length && addr.suburb) parts.push(addr.suburb);
+                    if (!parts.length) parts.push(data.display_name.split(',')[0]);
+                    
+                    selectedAddress = parts.join(', ');
+                    
+                    document.getElementById('map-address').innerHTML = `
+                        <strong>${selectedAddress}</strong>
+                        ${addr.city || addr.town || addr.village || ''}
+                    `;
+                    document.getElementById('btn-confirm-map').disabled = false;
+                }
+            } catch (err) {
+                document.getElementById('map-address').innerHTML = `
+                    <strong>Координаты: ${lat.toFixed(5)}, ${lng.toFixed(5)}</strong>
+                    Не удалось определить адрес
+                `;
+                selectedAddress = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                document.getElementById('btn-confirm-map').disabled = false;
+            }
+        }
+        
+        function confirmMapAddress() {
+            if (selectedAddress) {
+                document.getElementById('f-address').value = selectedAddress;
+                closeMap();
+            }
         }
     </script>
 </body>
