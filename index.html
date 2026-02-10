@@ -545,7 +545,7 @@
             document.getElementById('products-list').innerHTML = '<div class="loading">Загрузка...</div>';
             
             try {
-                const res = await fetch(API + '/products');
+                const res = await fetch(API + '/products?t=' + Date.now());
                 allProducts = await res.json();
                 
                 if (allProducts.length === 0) {
