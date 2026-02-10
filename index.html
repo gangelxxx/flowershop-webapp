@@ -3,262 +3,505 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Карточка товара</title>
+    <title>FlowerShop Admin</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --tg-theme-bg-color: #1c1c1e;
-            --tg-theme-text-color: #ffffff;
-            --tg-theme-hint-color: #8e8e93;
-            --tg-theme-button-color: #3390ec;
-            --tg-theme-button-text-color: #ffffff;
-            --tg-theme-secondary-bg-color: #2c2c2e;
-        }
-        
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --bg: #1c1c1e;
+            --card: #2c2c2e;
+            --text: #ffffff;
+            --hint: #8e8e93;
+            --accent: #3390ec;
+            --green: #34c759;
+            --red: #ff3b30;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            padding: 16px;
-            padding-bottom: 100px;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
+            padding-bottom: 80px;
         }
         
-        .header { text-align: center; margin-bottom: 24px; }
-        .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-        .header p { color: var(--tg-theme-hint-color); font-size: 14px; }
-        
-        .photo-upload {
-            background: var(--tg-theme-secondary-bg-color);
-            border-radius: 16px;
-            padding: 24px;
+        .header {
+            background: var(--card);
+            padding: 16px;
             text-align: center;
-            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 { font-size: 18px; font-weight: 600; }
+        
+        .tabs {
+            display: flex;
+            background: var(--card);
+            padding: 8px;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--hint);
+            font-size: 14px;
             cursor: pointer;
         }
-        .photo-upload.has-photo { padding: 0; overflow: hidden; }
-        .photo-upload img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 16px; }
-        .photo-icon { font-size: 48px; margin-bottom: 8px; }
-        .photo-text { color: var(--tg-theme-hint-color); font-size: 14px; }
         
+        .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .content { padding: 0 16px; }
+        
+        /* Products List */
+        .product-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .product-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--bg);
+        }
+        
+        .product-info { flex: 1; }
+        .product-name { font-weight: 600; margin-bottom: 4px; }
+        .product-price { color: var(--green); font-weight: 500; }
+        .product-status { font-size: 12px; color: var(--hint); }
+        
+        .product-actions { display: flex; gap: 8px; }
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-edit { background: var(--accent); color: white; }
+        .btn-delete { background: var(--red); color: white; }
+        
+        /* Form */
         .form-group { margin-bottom: 16px; }
         .form-label {
-            display: block; font-size: 13px; color: var(--tg-theme-hint-color);
-            margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+            display: block;
+            font-size: 13px;
+            color: var(--hint);
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
         .form-input {
-            width: 100%; background: var(--tg-theme-secondary-bg-color);
-            border: none; border-radius: 12px; padding: 14px 16px;
-            font-size: 16px; color: var(--tg-theme-text-color); outline: none;
+            width: 100%;
+            background: var(--card);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 16px;
+            color: var(--text);
+            outline: none;
         }
-        .form-input:focus { box-shadow: 0 0 0 2px var(--tg-theme-button-color); }
-        .form-input::placeholder { color: var(--tg-theme-hint-color); }
+        .form-input:focus { box-shadow: 0 0 0 2px var(--accent); }
         textarea.form-input { min-height: 100px; resize: vertical; }
         
-        .price-input { position: relative; }
-        .price-input .form-input { padding-right: 40px; }
-        .price-input .currency {
-            position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-            color: var(--tg-theme-hint-color); font-size: 16px;
+        .photo-upload {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+        .photo-upload img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+        }
+        .photo-icon { font-size: 40px; }
+        .photo-text { color: var(--hint); font-size: 14px; margin-top: 8px; }
+        
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card);
+            padding: 14px 16px;
+            border-radius: 12px;
         }
         
-        .toggle-group {
-            display: flex; align-items: center; justify-content: space-between;
-            background: var(--tg-theme-secondary-bg-color);
-            border-radius: 12px; padding: 14px 16px;
-        }
-        .toggle-label { font-size: 16px; }
         .toggle {
-            width: 51px; height: 31px; background: #39393d;
-            border-radius: 16px; position: relative; cursor: pointer; transition: all 0.3s;
+            width: 51px; height: 31px;
+            background: #39393d;
+            border-radius: 16px;
+            position: relative;
+            cursor: pointer;
         }
-        .toggle.active { background: #34c759; }
+        .toggle.on { background: var(--green); }
         .toggle::after {
-            content: ''; position: absolute; width: 27px; height: 27px;
-            background: white; border-radius: 50%; top: 2px; left: 2px;
-            transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            content: '';
+            position: absolute;
+            width: 27px; height: 27px;
+            background: white;
+            border-radius: 50%;
+            top: 2px; left: 2px;
+            transition: 0.3s;
         }
-        .toggle.active::after { left: 22px; }
+        .toggle.on::after { left: 22px; }
         
-        .hidden { display: none; }
+        .btn-primary {
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .btn-primary:disabled { opacity: 0.5; }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-label { color: var(--hint); font-size: 13px; margin-top: 4px; }
+        
+        /* Add button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--hint);
+        }
+        
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--hint);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        
+        .hidden { display: none !important; }
+        
         #fileInput { display: none; }
-        
-        .debug { 
-            position: fixed; bottom: 60px; left: 10px; right: 10px;
-            background: rgba(255,0,0,0.8); color: white; padding: 8px;
-            border-radius: 8px; font-size: 12px; display: none;
-        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1 id="title">➕ Новый товар</h1>
-        <p id="subtitle">Заполните информацию о букете</p>
+        <h1>🌸 FlowerShop Admin</h1>
     </div>
     
-    <div class="photo-upload" id="photoUpload" onclick="document.getElementById('fileInput').click()">
-        <div id="photoPlaceholder">
-            <div class="photo-icon">📷</div>
-            <div class="photo-text">Нажмите чтобы добавить фото</div>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('products')">📦 Товары</button>
+        <button class="tab" onclick="showTab('stats')">📊 Статистика</button>
+    </div>
+    
+    <!-- Products Tab -->
+    <div id="tab-products" class="content">
+        <div id="products-list"></div>
+        <button class="fab" onclick="showForm()">+</button>
+    </div>
+    
+    <!-- Stats Tab -->
+    <div id="tab-stats" class="content hidden">
+        <div id="stats-content"></div>
+    </div>
+    
+    <!-- Product Form -->
+    <div id="product-form" class="content hidden">
+        <div class="header" style="margin: -16px -16px 16px; position: static;">
+            <h1 id="form-title">➕ Новый товар</h1>
         </div>
-        <img id="photoPreview" class="hidden" alt="Preview">
-    </div>
-    <input type="file" id="fileInput" accept="image/*" onchange="handlePhotoSelect(event)">
-    
-    <div class="form-group">
-        <label class="form-label">Название</label>
-        <input type="text" class="form-input" id="name" placeholder="Например: Нежность">
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Описание</label>
-        <textarea class="form-input" id="description" placeholder="Опишите букет..."></textarea>
-    </div>
-    
-    <div class="form-group">
-        <label class="form-label">Цена</label>
-        <div class="price-input">
-            <input type="number" class="form-input" id="price" placeholder="2500">
-            <span class="currency">₽</span>
+        
+        <div class="photo-upload" onclick="document.getElementById('fileInput').click()">
+            <div id="photo-placeholder">
+                <div class="photo-icon">📷</div>
+                <div class="photo-text">Добавить фото</div>
+            </div>
+            <img id="photo-preview" class="hidden">
         </div>
-    </div>
-    
-    <div class="form-group">
-        <div class="toggle-group">
-            <span class="toggle-label">В наличии</span>
-            <div class="toggle active" id="inStock" onclick="toggleStock()"></div>
+        <input type="file" id="fileInput" accept="image/*" onchange="handlePhoto(event)">
+        
+        <div class="form-group">
+            <label class="form-label">Название</label>
+            <input type="text" class="form-input" id="f-name" placeholder="Нежность">
         </div>
+        
+        <div class="form-group">
+            <label class="form-label">Описание</label>
+            <textarea class="form-input" id="f-desc" placeholder="Букет из 15 розовых роз..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Цена (₽)</label>
+            <input type="number" class="form-input" id="f-price" placeholder="2500">
+        </div>
+        
+        <div class="form-group">
+            <div class="toggle-row">
+                <span>В наличии</span>
+                <div class="toggle on" id="f-stock" onclick="this.classList.toggle('on')"></div>
+            </div>
+        </div>
+        
+        <button class="btn-primary" onclick="saveProduct()">💾 Сохранить</button>
+        <button class="btn-primary" style="background: var(--hint); margin-top: 8px;" onclick="hideForm()">Отмена</button>
     </div>
-    
-    <button onclick="submitForm()" style="
-        width: 100%;
-        background: var(--tg-theme-button-color);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 16px;
-        font-size: 16px;
-        font-weight: 600;
-        margin-top: 20px;
-        cursor: pointer;
-    ">✅ Сохранить товар</button>
-    
-    <div class="debug" id="debug"></div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        const debug = document.getElementById('debug');
-        
-        function log(msg) {
-            console.log(msg);
-            debug.style.display = 'block';
-            debug.textContent = msg;
-        }
-        
         tg.expand();
         tg.ready();
         
-        // Apply Telegram theme
+        // Apply theme
         if (tg.themeParams) {
-            document.body.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1c1c1e');
-            document.body.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#ffffff');
-            document.body.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#8e8e93');
-            document.body.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#3390ec');
-            document.body.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2e');
+            document.body.style.setProperty('--bg', tg.themeParams.bg_color || '#1c1c1e');
+            document.body.style.setProperty('--card', tg.themeParams.secondary_bg_color || '#2c2c2e');
+            document.body.style.setProperty('--text', tg.themeParams.text_color || '#ffffff');
+            document.body.style.setProperty('--hint', tg.themeParams.hint_color || '#8e8e93');
+            document.body.style.setProperty('--accent', tg.themeParams.button_color || '#3390ec');
         }
         
+        const API = 'https://drop-seo-firewire-thompson.trycloudflare.com';
+        const TOKEN = 'flowershop_admin_2024';
+        
+        let editingId = null;
         let photoData = null;
-        let inStock = true;
         
-        // Main button setup
-        tg.MainButton.setText('Добавить товар');
-        tg.MainButton.show();
+        // Load products on start
+        loadProducts();
         
-        // Use onEvent instead of onClick (more reliable)
-        tg.onEvent('mainButtonClicked', function() {
-            log('Button clicked!');
-            submitForm();
-        });
-        
-        function toggleStock() {
-            inStock = !inStock;
-            document.getElementById('inStock').classList.toggle('active', inStock);
+        async function loadProducts() {
+            document.getElementById('products-list').innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            try {
+                const res = await fetch(API + '/products');
+                const products = await res.json();
+                
+                if (products.length === 0) {
+                    document.getElementById('products-list').innerHTML = `
+                        <div class="empty">
+                            <div class="empty-icon">📦</div>
+                            <div>Товаров пока нет</div>
+                        </div>`;
+                    return;
+                }
+                
+                let html = '';
+                for (const p of products) {
+                    const status = p.in_stock ? '✅ В наличии' : '❌ Нет';
+                    const img = p.image_url || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%232c2c2e" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="%238e8e93" font-size="30">🌸</text></svg>';
+                    html += `
+                        <div class="product-card">
+                            <img class="product-img" src="${img}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232c2c2e%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%238e8e93%22 font-size=%2230%22>🌸</text></svg>'">
+                            <div class="product-info">
+                                <div class="product-name">${p.name}</div>
+                                <div class="product-price">${p.price} ₽</div>
+                                <div class="product-status">${status}</div>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn-icon btn-edit" onclick="editProduct(${p.id})">✏️</button>
+                                <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id}, '${p.name}')">🗑</button>
+                            </div>
+                        </div>`;
+                }
+                document.getElementById('products-list').innerHTML = html;
+            } catch (e) {
+                document.getElementById('products-list').innerHTML = '<div class="loading">Ошибка загрузки</div>';
+            }
         }
         
-        function handlePhotoSelect(event) {
-            const file = event.target.files[0];
+        async function loadStats() {
+            document.getElementById('stats-content').innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            try {
+                const res = await fetch(API + '/stats');
+                const s = await res.json();
+                
+                document.getElementById('stats-content').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${s.products}</div>
+                            <div class="stat-label">Товаров</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${s.orders}</div>
+                            <div class="stat-label">Заказов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${s.users}</div>
+                            <div class="stat-label">Клиентов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${s.revenue}₽</div>
+                            <div class="stat-label">Выручка</div>
+                        </div>
+                    </div>`;
+            } catch (e) {
+                document.getElementById('stats-content').innerHTML = '<div class="loading">Ошибка</div>';
+            }
+        }
+        
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
+            
+            document.getElementById('tab-products').classList.toggle('hidden', tab !== 'products');
+            document.getElementById('tab-stats').classList.toggle('hidden', tab !== 'stats');
+            document.getElementById('product-form').classList.add('hidden');
+            
+            if (tab === 'stats') loadStats();
+            if (tab === 'products') loadProducts();
+        }
+        
+        function showForm(product = null) {
+            editingId = product ? product.id : null;
+            document.getElementById('form-title').textContent = product ? '✏️ Редактирование' : '➕ Новый товар';
+            
+            document.getElementById('f-name').value = product ? product.name : '';
+            document.getElementById('f-desc').value = product ? product.description : '';
+            document.getElementById('f-price').value = product ? product.price : '';
+            document.getElementById('f-stock').classList.toggle('on', product ? product.in_stock : true);
+            
+            // Reset photo
+            photoData = null;
+            document.getElementById('photo-preview').classList.add('hidden');
+            document.getElementById('photo-placeholder').classList.remove('hidden');
+            if (product && product.image_url) {
+                document.getElementById('photo-preview').src = product.image_url;
+                document.getElementById('photo-preview').classList.remove('hidden');
+                document.getElementById('photo-placeholder').classList.add('hidden');
+            }
+            
+            document.getElementById('tab-products').classList.add('hidden');
+            document.getElementById('product-form').classList.remove('hidden');
+            document.querySelector('.fab').classList.add('hidden');
+        }
+        
+        function hideForm() {
+            document.getElementById('product-form').classList.add('hidden');
+            document.getElementById('tab-products').classList.remove('hidden');
+            document.querySelector('.fab').classList.remove('hidden');
+        }
+        
+        async function editProduct(id) {
+            try {
+                const res = await fetch(API + '/products/' + id);
+                const product = await res.json();
+                showForm(product);
+            } catch (e) {
+                alert('Ошибка загрузки товара');
+            }
+        }
+        
+        async function deleteProduct(id, name) {
+            if (!confirm(`Удалить "${name}"?`)) return;
+            
+            try {
+                await fetch(API + '/products/' + id, {
+                    method: 'DELETE',
+                    headers: { 'X-Auth-Token': TOKEN }
+                });
+                loadProducts();
+            } catch (e) {
+                alert('Ошибка удаления');
+            }
+        }
+        
+        function handlePhoto(e) {
+            const file = e.target.files[0];
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = function(e) {
-                photoData = e.target.result;
-                document.getElementById('photoPreview').src = photoData;
-                document.getElementById('photoPreview').classList.remove('hidden');
-                document.getElementById('photoPlaceholder').classList.add('hidden');
-                document.getElementById('photoUpload').classList.add('has-photo');
+            reader.onload = function(ev) {
+                photoData = ev.target.result;
+                document.getElementById('photo-preview').src = photoData;
+                document.getElementById('photo-preview').classList.remove('hidden');
+                document.getElementById('photo-placeholder').classList.add('hidden');
             };
             reader.readAsDataURL(file);
         }
         
-        function submitForm() {
-            const name = document.getElementById('name').value.trim();
-            const description = document.getElementById('description').value.trim();
-            const price = document.getElementById('price').value;
+        async function saveProduct() {
+            const name = document.getElementById('f-name').value.trim();
+            const desc = document.getElementById('f-desc').value.trim();
+            const price = parseInt(document.getElementById('f-price').value);
+            const inStock = document.getElementById('f-stock').classList.contains('on');
             
-            log('Validating: ' + name + ', ' + description + ', ' + price);
-            
-            if (!name) {
-                tg.showAlert('Введите название товара');
-                return;
-            }
-            if (!description) {
-                tg.showAlert('Введите описание');
-                return;
-            }
-            if (!price || price <= 0) {
-                tg.showAlert('Введите корректную цену');
+            if (!name || !desc || !price) {
+                alert('Заполните все поля');
                 return;
             }
             
             const data = {
-                action: 'add',
-                name: name,
-                description: description,
-                price: parseInt(price),
+                name,
+                description: desc,
+                price,
                 in_stock: inStock,
-                has_photo: !!photoData
+                image_url: photoData || null
             };
             
-            log('Sending: ' + JSON.stringify(data));
-            
-            log('Sending: ' + JSON.stringify(data).substring(0, 50));
-            
-            // Send data and close
-            tg.sendData(JSON.stringify(data));
-            log('Data sent!');
-            
-            // Force close after delay
-            setTimeout(function() {
-                tg.close();
-            }, 500);
-        }
-        
-        // Validate on input
-        ['name', 'description', 'price'].forEach(id => {
-            document.getElementById(id).addEventListener('input', function() {
-                const name = document.getElementById('name').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const price = document.getElementById('price').value;
+            try {
+                const url = editingId ? API + '/products/' + editingId : API + '/products';
+                const method = editingId ? 'PUT' : 'POST';
                 
-                if (name && description && price > 0) {
-                    tg.MainButton.enable();
-                } else {
-                    tg.MainButton.disable();
-                }
-            });
-        });
+                await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Auth-Token': TOKEN
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                hideForm();
+                loadProducts();
+            } catch (e) {
+                alert('Ошибка сохранения');
+            }
+        }
     </script>
 </body>
 </html>
