@@ -350,12 +350,18 @@
         .empty-icon { font-size: 60px; margin-bottom: 12px; }
         
         .loading { 
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 50vh;
             color: var(--hint);
+            background: var(--bg);
+            z-index: 50;
         }
         .loading-spinner {
             width: 40px;
